@@ -1,0 +1,5 @@
+proxmox-rrd-migration-tool (1.0.0) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 21 Jul 2025 13:56:37 +0200

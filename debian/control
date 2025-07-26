@@ -1,0 +1,27 @@
+Source: proxmox-rrd-migration-tool
+Section: admin
+Priority: optional
+Build-Depends: cargo:native,
+               debhelper-compat (= 13),
+               dh-cargo (>= 25),
+               librust-anyhow-1+default-dev,
+               librust-bindgen-dev,
+               librust-libc-0.2+default-dev (>= 0.2.107-~~),
+               librust-pico-args-0.5+default-dev,
+               librust-pkg-config-dev,
+               librust-proxmox-async-dev,
+               libstd-rust-dev,
+               rustc:native,
+Maintainer: Proxmox Support Team <support@proxmox.com>
+Standards-Version: 4.6.1
+Vcs-Git: git://git.proxmox.com/git/proxmox-rrd-migration-tool.git
+Vcs-Browser: https://git.proxmox.com/?p=proxmox-rrd-migration-tool.git;a=summary
+Homepage: https://www.proxmox.com
+Rules-Requires-Root: no
+
+Package: proxmox-rrd-migration-tool
+Architecture: any
+Multi-Arch: allowed
+Depends: ${misc:Depends}, ${shlibs:Depends},
+Description: Tool to migrate RRD data on Proxmox VE hosts from pre version 8
+  to new version 9 files.
