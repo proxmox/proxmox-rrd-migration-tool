@@ -7,3 +7,4 @@
 target/
 /Cargo.lock
 /proxmox-rrd-migration-tool-[0-9]*/
+/tmp_tests

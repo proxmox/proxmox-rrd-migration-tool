@@ -3,3 +3,6 @@
 directory = "/usr/share/cargo/registry"
 [source.crates-io]
 replace-with = "debian-packages"
+[env]
+# as they currently use the same tmp_tests dir to perform the tests
+RUST_TEST_THREADS = "1"
