@@ -1,0 +1,9 @@
+*.build
+*.buildinfo
+*.changes
+*.deb
+*.dsc
+*.tar*
+target/
+/Cargo.lock
+/proxmox-rrd-migration-tool-[0-9]*/
