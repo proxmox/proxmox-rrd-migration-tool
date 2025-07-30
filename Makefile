@@ -3,11 +3,11 @@ include /usr/share/dpkg/default.mk
 PACKAGE = proxmox-rrd-migration-tool
 
 BUILDDIR ?= $(PACKAGE)-$(DEB_VERSION_UPSTREAM)
-ORIG_SRC_TAR=$(PACKAGE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
+ORIG_SRC_TAR = $(PACKAGE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
 
-DEB=$(PACKAGE)_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
-DBG_DEB=$(PACKAGE)-dbgsym_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
-DSC=$(PACKAGE)_$(DEB_VERSION).dsc
+DEB = $(PACKAGE)_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
+DBG_DEB = $(PACKAGE)-dbgsym_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
+DSC = $(PACKAGE)_$(DEB_VERSION).dsc
 
 CARGO ?= cargo
 ifeq ($(BUILD_MODE), release)
@@ -23,8 +23,10 @@ PROXMOX_LIBEXECDIR = $(LIBEXECDIR)/proxmox
 
 PROXMOX_RRD_MIGRATION_TOOL_BIN := $(addprefix $(COMPILEDIR)/,proxmox-rrd-migration-tool)
 
+.PHONY: all
 all:
 
+.PHONY: install
 install: $(PROXMOX_RRD_MIGRATION_TOOL_BIN)
 	install -dm755 $(DESTDIR)$(PROXMOX_LIBEXECDIR)
 	install -m755 $(PROXMOX_RRD_MIGRATION_TOOL_BIN) $(DESTDIR)$(PROXMOX_LIBEXECDIR)/
