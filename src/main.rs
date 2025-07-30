@@ -292,8 +292,8 @@ fn set_threads(args: &Args) -> usize {
         }
     };
 
-    if cpus < MAX_AUTO_THREADS * 6 {
-        let threads = cpus / 6;
+    if cpus < MAX_AUTO_THREADS * 4 {
+        let threads = cpus / 4;
         if threads == 0 {
             return 1;
         }
