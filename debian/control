@@ -23,5 +23,7 @@ Package: proxmox-rrd-migration-tool
 Architecture: any
 Multi-Arch: allowed
 Depends: ${misc:Depends}, ${shlibs:Depends},
-Description: Tool to migrate RRD data on Proxmox VE hosts from pre version 8
-  to new version 9 files.
+Description: Migrate Proxmox VE RRD metrics to new version format.
+ Tool to migrate rrd-tools backed RRD files from previous format versions to
+ newer ones, e.g. for adding columns or making them more granular, like it was
+ done for Proxmox VE 9.0.
