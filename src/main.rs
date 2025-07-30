@@ -462,6 +462,7 @@ fn migrate_guests(
             } else {
                 println!("VMID: '{guest}' not present. Would mark as old, but in dry-run mode, so just skip.");
             }
+            continue;
         }
         let migration_channel = migration_channel.clone();
         migration_channel.send(file)?;
