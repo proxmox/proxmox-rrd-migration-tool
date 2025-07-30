@@ -454,10 +454,14 @@ fn migrate_guests(
     let migration_channel = migration_pool.channel();
 
     for file in guest_source_files {
-        let node = file.1.clone().into_string().unwrap();
-        if !resource_present(format!("{resources}/.vmlist").as_str(), node.as_str())? {
-            println!("VMID: '{node}' not present. Skip and mark as old.");
-            mv_old(format!("{}", file.0.to_string_lossy()).as_str())?;
+        let guest = file.1.clone().into_string().unwrap();
+        if !resource_present(format!("{resources}/.vmlist").as_str(), guest.as_str())? {
+            if migrate {
+                println!("VMID: '{guest}' not present. Skip and mark as old.");
+                mv_old(format!("{}", file.0.to_string_lossy()).as_str())?;
+            } else {
+                println!("VMID: '{guest}' not present. Would mark as old, but in dry-run mode, so just skip.");
+            }
         }
         let migration_channel = migration_channel.clone();
         migration_channel.send(file)?;
@@ -507,8 +511,12 @@ fn migrate_nodes(
         let full_path = file.0.clone().into_string().unwrap();
         println!("Node: '{node}'");
         if !resource_present(format!("{resources}/.members").as_str(), node.as_str())? {
-            println!("Node: '{node}' not present. Skip and mark as old.");
-            mv_old(format!("{}/{node}", file.0.to_string_lossy()).as_str())?;
+            if migrate {
+                println!("Node: '{node}' not present. Skip and mark as old.");
+                mv_old(format!("{}/{node}", file.0.to_string_lossy()).as_str())?;
+            } else {
+                println!("Node: '{node}' not present. Would mark as old, but in dry-run mode, so just skip.");
+            }
         }
         match do_rrd_migration(
             file,
