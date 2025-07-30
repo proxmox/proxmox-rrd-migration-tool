@@ -1,3 +1,9 @@
+proxmox-rrd-migration-tool (1.0.2) trixie; urgency=medium
+
+  * install systemd service to basic.target.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 30 Jul 2025 23:33:02 +0200
+
 proxmox-rrd-migration-tool (1.0.1) trixie; urgency=medium
 
   * output errors from migration and mention the subject in the message
