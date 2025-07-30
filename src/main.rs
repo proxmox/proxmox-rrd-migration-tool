@@ -437,7 +437,7 @@ fn migrate_guests(
                 Ok(()) => {
                     mv_old(full_path.as_str())?;
                     let current_guests = guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-                    if current_guests > 0 && current_guests % 100 == 0 {
+                    if current_guests > 0 && current_guests % 10 == 0 {
                         println!(
                             "migrated metrics for {current_guests} out of {total_guests} guests."
                         );
