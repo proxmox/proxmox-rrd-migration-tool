@@ -1,3 +1,23 @@
+proxmox-rrd-migration-tool (1.0.1) trixie; urgency=medium
+
+  * output errors from migration and mention the subject in the message
+
+  * use more telling output messages and differentiate between having migrated
+    all RRD data of a specific type (node, storage, guest) or none/some.
+
+  * use a fourth of the total detected CPU threads by default, still capped at
+    6 maximum threads for now.
+
+  * do not move files of unknown resources in dry-run mode.
+
+  * guest metrics: do not send skipped files to parallel migration handler.
+
+  * guest metrics: increase frequency for progress report to every 10th guest.
+
+  * add guarded systemd service for handling the migration on-boot.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 30 Jul 2025 22:07:08 +0200
+
 proxmox-rrd-migration-tool (1.0.0) trixie; urgency=medium
 
   * Initial release.
