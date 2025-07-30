@@ -10,13 +10,14 @@ license = "AGPL-3"
 homepage = "https://www.proxmox.com"
 
 [dependencies]
-anyhow = "1.0.86"
-pico-args = "0.5.0"
-proxmox-async = "0.4"
+anyhow = "1"
+pico-args = "0.5"
+proxmox-async = "0.5"
 crossbeam-channel = "0.5"
 
 [build-dependencies]
-bindgen = "0.66.1"
+bindgen = "0.71"
 pkg-config = "0.3"
+
 [dev-dependencies]
 pretty_assertions = "1.4"
