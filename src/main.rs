@@ -535,6 +535,7 @@ fn migrate_storage(
                 let metadata = target_storage_subdir.metadata()?;
                 let mut permissions = metadata.permissions();
                 permissions.set_mode(0o755);
+                fs::set_permissions(&target_storage_subdir, permissions)?;
             }
 
             let storage_source_files = collect_rrd_files(&source_storage_subdir)?;
