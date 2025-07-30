@@ -343,13 +343,9 @@ fn do_rrd_migration(
     migrate: bool,
     force: bool,
 ) -> Result<()> {
-    if !migrate {
-        println!("would migrate but in dry run mode");
-    }
-
     let resource = file.1;
     let mut target_path = target_location.to_path_buf();
-    target_path.push(resource);
+    target_path.push(&resource);
 
     if target_path.exists() && !force {
         println!(
@@ -358,8 +354,10 @@ fn do_rrd_migration(
         );
     }
 
-    if !migrate || (target_path.exists() && !force) {
-        bail!("skipping");
+    if !migrate {
+        bail!("skipping migration of metrics for {resource:?} - dry-run mode");
+    } else if target_path.exists() && !force {
+        bail!("refusing to migrate metrics for {resource:?} - target already exists and 'force' not set!");
     }
 
     let mut source: [*const i8; 2] = [std::ptr::null(); 2];
@@ -427,17 +425,22 @@ fn migrate_guests(
         move |file: (CString, OsString)| {
             let full_path = file.0.clone().into_string().unwrap();
 
-            if let Ok(()) = do_rrd_migration(
+            match do_rrd_migration(
                 file,
                 &target_dir_guests,
                 RRD_VM_DEF.as_slice(),
                 migrate,
                 force,
             ) {
-                mv_old(full_path.as_str())?;
-                let current_guests = guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-                if current_guests > 0 && current_guests % 200 == 0 {
-                    println!("Migrated {current_guests} of {total_guests} guests");
+                Ok(()) => {
+                    mv_old(full_path.as_str())?;
+                    let current_guests = guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                    if current_guests > 0 && current_guests % 100 == 0 {
+                        println!("Migrated {current_guests} of {total_guests} guests");
+                    }
+                }
+                Err(err) => {
+                    eprintln!("{err}"); // includes information messages, so just print.
                 }
             }
             Ok(())
@@ -493,14 +496,19 @@ fn migrate_nodes(
             println!("Node: '{node}' not present. Skip and mark as old.");
             mv_old(format!("{}/{node}", file.0.to_string_lossy()).as_str())?;
         }
-        if let Ok(()) = do_rrd_migration(
+        match do_rrd_migration(
             file,
             &target_dir_nodes,
             RRD_NODE_DEF.as_slice(),
             migrate,
             force,
         ) {
-            mv_old(full_path.as_str())?;
+            Ok(()) => {
+                mv_old(full_path.as_str())?;
+            }
+            Err(err) => {
+                eprintln!("{err}"); // includes information messages, so just print.
+            }
         }
     }
     println!("Migrated all nodes");
@@ -556,14 +564,19 @@ fn migrate_storage(
                 );
 
                 let full_path = file.0.clone().into_string().unwrap();
-                if let Ok(()) = do_rrd_migration(
+                match do_rrd_migration(
                     file,
                     &target_storage_subdir,
                     RRD_STORAGE_DEF.as_slice(),
                     migrate,
                     force,
                 ) {
-                    mv_old(full_path.as_str())?;
+                    Ok(()) => {
+                        mv_old(full_path.as_str())?;
+                    }
+                    Err(err) => {
+                        eprintln!("{err}"); // includes information messages, so just print.
+                    }
                 }
             }
             Ok::<(), Error>(())
