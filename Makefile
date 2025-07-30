@@ -1,7 +1,6 @@
 include /usr/share/dpkg/default.mk
 
-PACKAGE="proxmox-rrd-migration-tool"
-CRATENAME="proxmox-rrd-migration-tool"
+PACKAGE = proxmox-rrd-migration-tool
 
 BUILDDIR ?= $(PACKAGE)-$(DEB_VERSION_UPSTREAM)
 ORIG_SRC_TAR=$(PACKAGE)_$(DEB_VERSION_UPSTREAM).orig.tar.gz
