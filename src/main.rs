@@ -158,7 +158,7 @@ fn parse_args() -> Result<Args, Error> {
 
     // Help has a higher priority and should be handled separately.
     if pargs.contains(["-h", "--help"]) {
-        print!("{}", HELP);
+        print!("{HELP}");
         std::process::exit(0);
     }
 
@@ -198,8 +198,8 @@ fn parse_args() -> Result<Args, Error> {
 fn main() {
     let args = match parse_args() {
         Ok(v) => v,
-        Err(e) => {
-            eprintln!("Error: {}.", e);
+        Err(err) => {
+            eprintln!("Error: {err}.");
             std::process::exit(1);
         }
     };
@@ -233,26 +233,26 @@ fn main() {
         println!("Force mode! Will overwrite existing target RRD files!");
     }
 
-    if let Err(e) = migrate_nodes(
+    if let Err(err) = migrate_nodes(
         source_dir_nodes,
         target_dir_nodes,
         resource_base_dir,
         args.migrate,
         args.force,
     ) {
-        eprintln!("Error migrating nodes: {}", e);
+        eprintln!("Error migrating nodes: {err}");
         std::process::exit(1);
     }
-    if let Err(e) = migrate_storage(
+    if let Err(err) = migrate_storage(
         source_dir_storage,
         target_dir_storage,
         args.migrate,
         args.force,
     ) {
-        eprintln!("Error migrating storage: {}", e);
+        eprintln!("Error migrating storage: {err}");
         std::process::exit(1);
     }
-    if let Err(e) = migrate_guests(
+    if let Err(err) = migrate_guests(
         source_dir_guests,
         target_dir_guests,
         resource_base_dir,
@@ -260,7 +260,7 @@ fn main() {
         args.migrate,
         args.force,
     ) {
-        eprintln!("Error migrating guests: {}", e);
+        eprintln!("Error migrating guests: {err}");
         std::process::exit(1);
     }
 }
@@ -304,7 +304,7 @@ fn resource_present(path: &str, resource: &str) -> Result<bool> {
 
 /// Rename file to old, when migrated or resource not present at all -> old RRD file
 fn mv_old(file: &str) -> Result<()> {
-    let old = format!("{}.old", file);
+    let old = format!("{file}.old");
     fs::rename(file, old)?;
     Ok(())
 }
@@ -401,7 +401,7 @@ fn migrate_guests(
     force: bool,
 ) -> Result<(), Error> {
     println!("Migrating RRD data for guests…");
-    println!("Using {} thread(s)", threads);
+    println!("Using {threads} thread(s)");
 
     let guest_source_files = collect_rrd_files(&source_dir_guests)?;
 
@@ -431,7 +431,7 @@ fn migrate_guests(
                 mv_old(full_path.as_str())?;
                 let current_guests = guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                 if current_guests > 0 && current_guests % 200 == 0 {
-                    println!("Migrated {} of {} guests", current_guests, total_guests);
+                    println!("Migrated {current_guests} of {total_guests} guests");
                 }
             }
             Ok(())
@@ -454,8 +454,8 @@ fn migrate_guests(
 
     let elapsed = start_time.elapsed()?.as_secs_f64();
     let guests = guests.load(std::sync::atomic::Ordering::SeqCst);
-    println!("Migrated {} guests", guests);
-    println!("It took {:.2}s", elapsed);
+    println!("Migrated {guests} guests");
+    println!("It took {elapsed:.2}s");
 
     Ok(())
 }
@@ -485,7 +485,7 @@ fn migrate_nodes(
         println!("Node: '{node}'");
         if !resource_present(format!("{resources}/.members").as_str(), node.as_str())? {
             println!("Node: '{node}' not present. Skip and mark as old.");
-            mv_old(format!("{}/{}", file.0.to_string_lossy(), node).as_str())?;
+            mv_old(format!("{}/{node}", file.0.to_string_lossy()).as_str())?;
         }
         if let Ok(()) = do_rrd_migration(
             file,
