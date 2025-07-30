@@ -114,7 +114,7 @@ const RRD_STORAGE_DEF: [&CStr; 10] = [
 const HELP: &str = "\
 proxmox-rrd-migration tool
 
-Migrates existing RRD graph data to the new format.
+Migrates existing RRD metrics data to the new format.
 
 Use this only in the process of upgrading from Proxmox VE 8 to 9 according to the upgrade guide!
 
@@ -404,7 +404,7 @@ fn migrate_guests(
     migrate: bool,
     force: bool,
 ) -> Result<(), Error> {
-    println!("Migrating RRD data for guests…");
+    println!("Migrating RRD metrics data for virtual guests…");
     println!("Using {threads} thread(s)");
 
     let guest_source_files = collect_rrd_files(&source_dir_guests)?;
@@ -417,6 +417,8 @@ fn migrate_guests(
     let total_guests = guest_source_files.len();
     let guests = Arc::new(std::sync::atomic::AtomicUsize::new(0));
     let guests2 = guests.clone();
+    let failed_guests = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let failed_guests2 = failed_guests.clone();
     let start_time = std::time::SystemTime::now();
 
     let migration_pool = ParallelHandler::new(
@@ -436,11 +438,14 @@ fn migrate_guests(
                     mv_old(full_path.as_str())?;
                     let current_guests = guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                     if current_guests > 0 && current_guests % 100 == 0 {
-                        println!("Migrated {current_guests} of {total_guests} guests");
+                        println!(
+                            "migrated metrics for {current_guests} out of {total_guests} guests."
+                        );
                     }
                 }
                 Err(err) => {
                     eprintln!("{err}"); // includes information messages, so just print.
+                    failed_guests2.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                 }
             }
             Ok(())
@@ -463,8 +468,16 @@ fn migrate_guests(
 
     let elapsed = start_time.elapsed()?.as_secs_f64();
     let guests = guests.load(std::sync::atomic::Ordering::SeqCst);
-    println!("Migrated {guests} guests");
-    println!("It took {elapsed:.2}s");
+
+    let failed_guests = failed_guests.load(std::sync::atomic::Ordering::SeqCst);
+    if failed_guests == 0 {
+        println!("Migrated metrics data of all {guests} guests to new format in {elapsed:.2}s");
+    } else {
+        println!(
+            "Tried to migrated metrics of all guests to new format in {elapsed:.2}s, but did not \
+            finish {failed_guests} guests - see output above for details."
+        );
+    }
 
     Ok(())
 }
@@ -479,7 +492,7 @@ fn migrate_nodes(
     migrate: bool,
     force: bool,
 ) -> Result<(), Error> {
-    println!("Migrating RRD data for nodes…");
+    println!("Migrating RRD metrics data for nodes…");
 
     if !target_dir_nodes.exists() && migrate {
         println!("Creating new directory: '{}'", target_dir_nodes.display());
@@ -488,6 +501,7 @@ fn migrate_nodes(
 
     let node_source_files = collect_rrd_files(&source_dir_nodes)?;
 
+    let mut no_migration_err = true;
     for file in node_source_files {
         let node = file.1.clone().into_string().unwrap();
         let full_path = file.0.clone().into_string().unwrap();
@@ -508,10 +522,18 @@ fn migrate_nodes(
             }
             Err(err) => {
                 eprintln!("{err}"); // includes information messages, so just print.
+                no_migration_err = false;
             }
         }
     }
-    println!("Migrated all nodes");
+
+    if no_migration_err {
+        println!("Migrated metrics of all nodes to new format");
+    } else {
+        println!(
+            "Tried to migrated metrics of all nodes to new format - see output above for details."
+        );
+    }
 
     Ok(())
 }
@@ -525,13 +547,14 @@ fn migrate_storage(
     migrate: bool,
     force: bool,
 ) -> Result<(), Error> {
-    println!("Migrating RRD data for storages…");
+    println!("Migrating RRD metrics data for storages…");
 
     if !target_dir_storage.exists() && migrate {
         println!("Creating new directory: '{}'", target_dir_storage.display());
         std::fs::create_dir(&target_dir_storage)?;
     }
 
+    let mut no_migration_err = true;
     // storage has another layer of directories per node over which we need to iterate
     fs::read_dir(&source_dir_storage)?
         .filter(|f| f.is_ok())
@@ -553,10 +576,9 @@ fn migrate_storage(
             }
 
             let storage_source_files = collect_rrd_files(&source_storage_subdir)?;
-
             for file in storage_source_files {
                 println!(
-                    "Storage: '{}/{}'",
+                    "Migrating metrics for storage '{}/{}'",
                     node.file_name()
                         .expect("no file name present")
                         .to_string_lossy(),
@@ -576,12 +598,18 @@ fn migrate_storage(
                     }
                     Err(err) => {
                         eprintln!("{err}"); // includes information messages, so just print.
+                        no_migration_err = false;
                     }
                 }
             }
             Ok::<(), Error>(())
         })?;
-    println!("Migrated all storages");
+
+    if no_migration_err {
+        println!("Migrated metrics of all storages to new format");
+    } else {
+        println!("Tried to migrated metrics of all storages to new format - see output above for details.");
+    }
 
     Ok(())
 }
