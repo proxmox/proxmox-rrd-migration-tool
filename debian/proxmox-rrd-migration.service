@@ -1,0 +1,16 @@
+[Unit]
+Description=Migration of all RRD files to the new format of Proxmox VE 9.0
+Before=rrdcached.service rrdcached.socket pve-cluster.service
+After=local-fs.target
+ConditionPathExists=/var/lib/pve-manager/on-boot-rrd-migration-trigger
+
+[Service]
+Type=oneshot
+TimeoutStartSec=30min
+ExecStart=/usr/libexec/proxmox/proxmox-rrd-migration-tool --migrate
+ExecStartPost=/usr/bin/rm /var/lib/pve-manager/on-boot-rrd-migration-trigger
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
