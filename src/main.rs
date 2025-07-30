@@ -275,16 +275,22 @@ fn set_threads(args: &Args) -> usize {
     }
 
     // check for a way to get physical cores and not threads?
-    let cpus: usize = String::from_utf8_lossy(
-        std::process::Command::new("nproc")
-            .output()
-            .expect("Error running nproc")
-            .stdout
-            .as_slice()
-            .trim_ascii(),
-    )
-    .parse::<usize>()
-    .expect("Could not parse nproc output");
+    let cpus: usize = match std::process::Command::new("nproc").output() {
+        Ok(res) => {
+            let nproc_output = res.stdout.as_slice().trim_ascii();
+            match String::from_utf8_lossy(nproc_output).parse::<usize>() {
+                Ok(cpus) => cpus,
+                Err(err) => {
+                    eprintln!("failed to parse nproc output, falling back to single CPU – {err}");
+                    1
+                }
+            }
+        }
+        Err(err) => {
+            eprintln!("failed run nproc, falling back to single CPU – {err}");
+            1
+        }
+    };
 
     if cpus < 32 {
         let threads = cpus / 8;
