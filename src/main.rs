@@ -384,7 +384,7 @@ fn do_rrd_migration(
         );
         if res != 0 {
             bail!(
-                "RRD create Error: {}",
+                "RRD create-migrated error: {}",
                 CStr::from_ptr(rrd_get_error()).to_string_lossy()
             );
         }
