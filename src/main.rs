@@ -21,7 +21,7 @@ const TARGET_SUBDIR_NODE: &str = "pve-node-9.0";
 const TARGET_SUBDIR_GUEST: &str = "pve-vm-9.0";
 const TARGET_SUBDIR_STORAGE: &str = "pve-storage-9.0";
 const RESOURCE_BASE_DIR: &str = "/etc/pve";
-const MAX_THREADS: usize = 4;
+const MAX_AUTO_THREADS: usize = 6;
 const RRD_STEP_SIZE: usize = 60;
 
 type File = (CString, OsString);
@@ -292,14 +292,14 @@ fn set_threads(args: &Args) -> usize {
         }
     };
 
-    if cpus < 32 {
-        let threads = cpus / 8;
+    if cpus < MAX_AUTO_THREADS * 6 {
+        let threads = cpus / 6;
         if threads == 0 {
             return 1;
         }
         return threads;
     }
-    MAX_THREADS
+    MAX_AUTO_THREADS
 }
 
 /// Check if a VMID is currently configured
