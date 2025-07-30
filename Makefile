@@ -37,6 +37,11 @@ $(PROXMOX_RRD_MIGRATION_TOOL_BIN): .do-cargo-build
 	touch .do-cargo-build
 
 
+.PHONY: check
+check:
+	$(CARGO) test $(CARGO_BUILD_ARGS)
+
+
 .PHONY: cargo-build
 cargo-build: .do-cargo-build
 

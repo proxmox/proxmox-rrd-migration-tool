@@ -11,6 +11,7 @@ Build-Depends: cargo:native,
                librust-pkg-config-dev,
                librust-proxmox-async-0.5-dev,
                libstd-rust-dev,
+               rrdtool,
                rustc:native,
 Maintainer: Proxmox Support Team <support@proxmox.com>
 Standards-Version: 4.6.1

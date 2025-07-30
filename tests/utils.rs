@@ -70,7 +70,7 @@ pub fn compare_results(migrationtype: &str, target_path: &PathBuf, comp_subdir_p
             .collect();
             let expected = fs::read_to_string(expected_path).expect("read compare file");
             let testcase = String::from_utf8(
-                Command::new("/usr/bin/rrdtool")
+                Command::new("rrdtool")
                     .args(["info", path.to_str().unwrap()])
                     .output()
                     .expect("execute rrdtool info")
