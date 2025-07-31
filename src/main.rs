@@ -2,6 +2,7 @@ use anyhow::{bail, Error, Result};
 use std::{
     ffi::{CStr, CString, OsString},
     fs,
+    io::ErrorKind,
     os::unix::{ffi::OsStrExt, fs::PermissionsExt},
     path::{Path, PathBuf},
     sync::Arc,
@@ -319,7 +320,15 @@ fn mv_old(file: &str) -> Result<()> {
 fn collect_rrd_files(location: &PathBuf) -> Result<Vec<(CString, OsString)>> {
     let mut files: Vec<(CString, OsString)> = Vec::new();
 
-    fs::read_dir(location)?
+    let contents = match fs::read_dir(location) {
+        Ok(contents) => contents,
+        Err(e) if e.kind() == ErrorKind::NotFound => {
+            return Ok(files);
+        }
+        Err(e) => return Err(e.into()),
+    };
+
+    contents
         .filter(|f| f.is_ok())
         .map(|f| f.unwrap().path())
         .filter(|f| f.is_file() && f.extension().is_none())
@@ -408,6 +417,11 @@ fn migrate_guests(
     println!("Using {threads} thread(s)");
 
     let guest_source_files = collect_rrd_files(&source_dir_guests)?;
+
+    if guest_source_files.is_empty() {
+        println!("No guest metrics to migrate");
+        return Ok(());
+    }
 
     if !target_dir_guests.exists() && migrate {
         println!("Creating new directory: '{}'", target_dir_guests.display());
