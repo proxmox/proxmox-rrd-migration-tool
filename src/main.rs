@@ -528,10 +528,11 @@ fn migrate_nodes(
         if !resource_present(format!("{resources}/.members").as_str(), node.as_str())? {
             if migrate {
                 println!("Node: '{node}' not present. Skip and mark as old.");
-                mv_old(format!("{}/{node}", file.0.to_string_lossy()).as_str())?;
+                mv_old(full_path.as_str())?;
             } else {
                 println!("Node: '{node}' not present. Would mark as old, but in dry-run mode, so just skip.");
             }
+            continue;
         }
         match do_rrd_migration(
             file,
