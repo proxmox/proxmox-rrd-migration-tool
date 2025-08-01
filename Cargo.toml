@@ -1,6 +1,6 @@
 [package]
 name = "proxmox-rrd-migration-tool"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 authors = [
     "Aaron Lauterer <a.lauterer@proxmox.com>",
