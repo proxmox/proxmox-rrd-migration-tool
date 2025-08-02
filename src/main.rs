@@ -82,7 +82,7 @@ const RRD_NODE_DEF: [&CStr; 27] = [
     c"DS:rootused:GAUGE:120:0:U",
     c"DS:netin:DERIVE:120:0:U",
     c"DS:netout:DERIVE:120:0:U",
-    c"DS:memfree:GAUGE:120:0:U",
+    c"DS:memavailable:GAUGE:120:0:U",
     c"DS:arcsize:GAUGE:120:0:U",
     c"DS:pressurecpusome:GAUGE:120:0:U",
     c"DS:pressureiosome:GAUGE:120:0:U",
