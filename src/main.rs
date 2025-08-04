@@ -25,17 +25,7 @@ const RESOURCE_BASE_DIR: &str = "/etc/pve";
 const MAX_AUTO_THREADS: usize = 6;
 const RRD_STEP_SIZE: usize = 60;
 
-type RRDFile = (CString, OsString);
-
-static START_TIME: OnceLock<c_long> = OnceLock::new();
-fn get_start_time() -> c_long {
-    *START_TIME.get_or_init(|| {
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("Time went backwards")
-            .as_secs() as c_long
-    })
-}
+type File = (CString, OsString);
 
 // RRAs are defined in the following way:
 //
