@@ -332,7 +332,7 @@ fn collect_rrd_files(location: &PathBuf) -> Result<Vec<(CString, OsString)>> {
     contents
         .filter(|f| f.is_ok())
         .map(|f| f.unwrap().path())
-        .filter(|f| f.is_file() && f.extension().is_none())
+        .filter(|f| f.is_file() && f.extension().is_none_or(|ext| ext != "old"))
         .for_each(|file| {
             let path = CString::new(file.as_path().as_os_str().as_bytes())
                 .expect("Could not convert path to CString.");
