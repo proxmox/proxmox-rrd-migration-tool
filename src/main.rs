@@ -25,7 +25,7 @@ const RESOURCE_BASE_DIR: &str = "/etc/pve";
 const MAX_AUTO_THREADS: usize = 6;
 const RRD_STEP_SIZE: usize = 60;
 
-type File = (CString, OsString);
+type RRDFile = (CString, OsString);
 
 // RRAs are defined in the following way:
 //
@@ -346,7 +346,7 @@ fn collect_rrd_files(location: &PathBuf) -> Result<Vec<(CString, OsString)>> {
 
 /// Does the actual migration for the given file
 fn do_rrd_migration(
-    file: File,
+    file: RRDFile,
     target_location: &Path,
     rrd_def: &[&CStr],
     migrate: bool,
