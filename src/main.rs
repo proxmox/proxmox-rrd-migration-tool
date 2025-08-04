@@ -25,15 +25,25 @@ const RESOURCE_BASE_DIR: &str = "/etc/pve";
 const MAX_AUTO_THREADS: usize = 6;
 const RRD_STEP_SIZE: usize = 60;
 
-type File = (CString, OsString);
+type RRDFile = (CString, OsString);
+
+static START_TIME: OnceLock<c_long> = OnceLock::new();
+fn get_start_time() -> c_long {
+    *START_TIME.get_or_init(|| {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("Time went backwards")
+            .as_secs() as c_long
+    })
+}
 
 // RRAs are defined in the following way:
 //
 // RRA:CF:xff:step:rows
 // CF: AVERAGE or MAX
 // xff: 0.5
-// steps: stepsize is defined on rrd file creation! example: with 60 seconds step size:
-//	e.g. 1 => 60 sec, 30 => 1800 seconds or 30 min
+// steps: stepsize is defined on rrd file creation! example: with a 60 secondu step size, one step
+//    means 60 sec, 30 steps means 1800 seconds or 30 min
 // rows: how many aggregated rows are kept, as in how far back in time we store data
 //
 // how many seconds are aggregated per RRA: steps * stepsize * rows
