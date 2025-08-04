@@ -1,4 +1,3 @@
-use anyhow::{bail, Error, Result};
 use std::{
     ffi::{CStr, CString, OsString},
     fs,
@@ -7,6 +6,8 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
+
+use anyhow::{bail, Context, Error, Result};
 
 use proxmox_rrd_migration_tool::{rrd_clear_error, rrd_create_r2, rrd_get_context, rrd_get_error};
 
@@ -305,7 +306,7 @@ fn set_threads(args: &Args) -> usize {
 
 /// Check if a VMID is currently configured
 fn resource_present(path: &str, resource: &str) -> Result<bool> {
-    let resourcelist = fs::read_to_string(path)?;
+    let resourcelist = fs::read_to_string(path).context(format!("failed to read {path:?}"))?;
     Ok(resourcelist.contains(format!("\"{resource}\"").as_str()))
 }
 
