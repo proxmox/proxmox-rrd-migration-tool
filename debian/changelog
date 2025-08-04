@@ -1,3 +1,12 @@
+proxmox-rrd-migration-tool (1.0.5) trixie; urgency=medium
+
+  * node rrd: fix name for 'memavailable' metric column.
+  * add context to error for reading the resources list.
+  * collect rrd files: only skip '.old' extension to better handle storage IDs
+    containing a dot.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 04 Aug 2025 15:37:42 +0200
+
 proxmox-rrd-migration-tool (1.0.4) trixie; urgency=medium
 
   * migrate nodes: fix handling nonexistent nodes.
